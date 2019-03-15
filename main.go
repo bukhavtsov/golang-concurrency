@@ -35,7 +35,7 @@ func main() {
 		}()
 		wg.Wait()
 	}
-	printResult(requests, requestsNumber)
+	printResult(requests)
 }
 
 func initVariables(address *string, requestsNumber *int64, timeout *float64) (err error) {
@@ -83,7 +83,7 @@ func maxTime(requestsTime []time.Duration) (maxTime time.Duration) {
 	}
 	maxTime = requestsTime[0]
 	for i := 0; i < len(requestsTime); i++ {
-		if requestsTime[i].Nanoseconds() > maxTime.Nanoseconds() {
+		if requestsTime[i] > maxTime {
 			maxTime = requestsTime[i]
 		}
 	}
@@ -95,15 +95,15 @@ func minTime(requestsTime []time.Duration) (minTime time.Duration) {
 	}
 	minTime = requestsTime[0]
 	for i := 0; i < len(requestsTime); i++ {
-		if requestsTime[i].Nanoseconds() < minTime.Nanoseconds() {
+		if requestsTime[i] < minTime {
 			minTime = requestsTime[i]
 		}
 	}
 	return
 }
-func requestsAverageTime(requestTimes []time.Duration, requestsNumber int64) time.Duration {
-	if requestsNumber != 0 && len(requestTimes) != 0 {
-		return sum(requestTimes) / time.Duration(requestsNumber)
+func requestsAverageTime(requestTimes []time.Duration) time.Duration {
+	if len(requestTimes) != 0 {
+		return sum(requestTimes) / time.Duration(len(requestTimes))
 	}
 	return 0
 }
@@ -123,9 +123,9 @@ func addRequestTime(requests *request, requestStart time.Time) {
 	requests.requestTimes = append(requests.requestTimes, time.Since(requestStart))
 	requests.mux.Unlock()
 }
-func printResult(requests *request, requestsNumber int64) {
+func printResult(requests *request) {
 	fmt.Println("End time of requests:", sum(requests.requestTimes))
-	fmt.Println("Average request time:", requestsAverageTime(requests.requestTimes, requestsNumber))
+	fmt.Println("Average request time:", requestsAverageTime(requests.requestTimes))
 	fmt.Println("Longest request time:", maxTime(requests.requestTimes))
 	fmt.Println("Faster request time:", minTime(requests.requestTimes))
 	fmt.Println("Responds number that didn't wait:", requests.numberRejected)
