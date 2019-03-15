@@ -39,31 +39,20 @@ func main() {
 }
 
 func initVariables(address *string, requestsNumber *int64, timeout *float64) (err error) {
-	args := parseArgs()
-	*address = args["address"]
-	*requestsNumber, err = strconv.ParseInt(args["requestsNumber"], 0, 64)
+	addressFlag := flag.String("address", "", "address")
+	requestsNumberFlag := flag.String("requestsNumber", "0", "requestsNumber")
+	timeoutMillisecondsFlag := flag.String("timeoutMilliseconds", "0", "timeoutMilliseconds")
+	flag.Parse()
+	*address = *addressFlag
+	*requestsNumber, err = strconv.ParseInt(*requestsNumberFlag, 0, 64)
 	if err != nil {
 		return err
 	}
-	*timeout, err = strconv.ParseFloat(args["timeoutMilliseconds"], 64)
+	*timeout, err = strconv.ParseFloat(*timeoutMillisecondsFlag, 64)
 	*timeout *= 1000000
 	if err != nil {
 		return err
 	}
-	return
-}
-
-type Arguments map[string]string
-
-func parseArgs() (args Arguments) {
-	address := flag.String("address", "", "address")
-	requestsNumber := flag.String("requestsNumber", "0", "requestsNumber")
-	timeoutMilliseconds := flag.String("timeoutMilliseconds", "0", "timeoutMilliseconds")
-	flag.Parse()
-	args = make(map[string]string)
-	args["address"] = *address
-	args["requestsNumber"] = *requestsNumber
-	args["timeoutMilliseconds"] = *timeoutMilliseconds
 	return
 }
 
