@@ -11,12 +11,7 @@ import (
 )
 
 func main() {
-	var address string
-	var requestsNumber int64
-	var timeoutMilliseconds float64
 	requests := newRequests()
-	err := initVariables(&address, &requestsNumber, &timeoutMilliseconds)
-	check(err)
 	var wg sync.WaitGroup
 	for i := int64(0); i < requestsNumber; i++ {
 		wg.Add(1)
@@ -38,22 +33,33 @@ func main() {
 	printResult(requests)
 }
 
-func initVariables(address *string, requestsNumber *int64, timeout *float64) (err error) {
-	addressFlag := flag.String("address", "", "address")
-	requestsNumberFlag := flag.String("requestsNumber", "0", "requestsNumber")
-	timeoutMillisecondsFlag := flag.String("timeoutMilliseconds", "0", "timeoutMilliseconds")
+var (
+	address             string
+	requestsNumber      int64
+	timeoutMilliseconds float64
+)
+
+func init() {
+	address = *flag.String("address", "https://www.google.com/", "address")
+	requestsNumberFlag := flag.String("requestsNumber", "10", "requestsNumber")
+	timeoutMillisecondsFlag := flag.String("timeoutMilliseconds", "200", "timeoutMilliseconds")
 	flag.Parse()
-	*address = *addressFlag
-	*requestsNumber, err = strconv.ParseInt(*requestsNumberFlag, 0, 64)
-	if err != nil {
-		return err
+	var err error
+	if address == "" {
+		address = "https://www.google.com/"
+		fmt.Printf("address default value is:%s , because address has incorrect value\n", address)
 	}
-	*timeout, err = strconv.ParseFloat(*timeoutMillisecondsFlag, 64)
-	*timeout *= 1000000
-	if err != nil {
-		return err
+	requestsNumber, err = strconv.ParseInt(*requestsNumberFlag, 0, 64)
+	if err != nil || requestsNumber <= 0 {
+		requestsNumber = 10
+		fmt.Printf("requestsNumber default value is:%d , because requestsNumber has incorrect value\n", requestsNumber)
 	}
-	return
+	timeoutMilliseconds, err = strconv.ParseFloat(*timeoutMillisecondsFlag, 64)
+	timeoutMilliseconds *= 1000000
+	if err != nil || requestsNumber <= 0 {
+		timeoutMilliseconds = 200
+		fmt.Printf("timeoutMilliseconds default value is: %f, because timeoutMilliseconds has incorrect value\n", timeoutMilliseconds)
+	}
 }
 
 type request struct {
