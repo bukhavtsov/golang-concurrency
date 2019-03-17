@@ -39,25 +39,31 @@ var (
 	timeoutMilliseconds float64
 )
 
+const (
+	defaultAddress             = "https://www.google.com/"
+	defaultRequestsNumber      = 10
+	defaultTimeoutMilliseconds = 200
+)
+
 func init() {
-	address = *flag.String("address", "https://www.google.com/", "address")
-	requestsNumberFlag := flag.String("requestsNumber", "10", "requestsNumber")
-	timeoutMillisecondsFlag := flag.String("timeoutMilliseconds", "200", "timeoutMilliseconds")
+	address = *flag.String("address", defaultAddress, "address")
+	requestsNumberFlag := flag.String("requestsNumber", string(defaultRequestsNumber), "requestsNumber")
+	timeoutMillisecondsFlag := flag.String("timeoutMilliseconds", string(defaultTimeoutMilliseconds), "timeoutMilliseconds")
 	flag.Parse()
 	var err error
 	if address == "" {
-		address = "https://www.google.com/"
+		address = defaultAddress
 		fmt.Printf("address default value is:%s , because address has incorrect value\n", address)
 	}
 	requestsNumber, err = strconv.ParseInt(*requestsNumberFlag, 0, 64)
 	if err != nil || requestsNumber <= 0 {
-		requestsNumber = 10
+		requestsNumber = defaultRequestsNumber
 		fmt.Printf("requestsNumber default value is:%d , because requestsNumber has incorrect value\n", requestsNumber)
 	}
 	timeoutMilliseconds, err = strconv.ParseFloat(*timeoutMillisecondsFlag, 64)
 	timeoutMilliseconds *= 1000000
 	if err != nil || requestsNumber <= 0 {
-		timeoutMilliseconds = 200
+		timeoutMilliseconds = defaultTimeoutMilliseconds
 		fmt.Printf("timeoutMilliseconds default value is: %f, because timeoutMilliseconds has incorrect value\n", timeoutMilliseconds)
 	}
 }
