@@ -47,8 +47,8 @@ const (
 
 func init() {
 	address = *flag.String("address", defaultAddress, "address")
-	requestsNumberFlag := flag.String("requestsNumber", string(defaultRequestsNumber), "requestsNumber")
-	timeoutMillisecondsFlag := flag.String("timeoutMilliseconds", string(defaultTimeoutMilliseconds), "timeoutMilliseconds")
+	requestsNumberFlag := flag.String("requestsNumber", strconv.Itoa(defaultRequestsNumber), "requestsNumber")
+	timeoutMillisecondsFlag := flag.String("timeoutMilliseconds", strconv.Itoa(defaultTimeoutMilliseconds), "timeoutMilliseconds")
 	flag.Parse()
 	var err error
 	if address == "" {
