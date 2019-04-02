@@ -12,11 +12,11 @@ import (
 
 func main() {
 	requests := newRequests()
-	var wg sync.WaitGroup
+	var wgMain sync.WaitGroup
 	for i := 0; i < requestsNumber; i++ {
-		wg.Add(1)
-		go func(wg *sync.WaitGroup) {
-			defer wg.Done()
+		wgMain.Add(1)
+		go func(wgFunc *sync.WaitGroup) {
+			defer wgFunc.Done()
 			requestStart := time.Now()
 			client := http.Client{Timeout: time.Duration(timeoutMilliseconds)}
 			_, err := client.Get(address)
@@ -27,8 +27,8 @@ func main() {
 			} else {
 				addRequestTime(requests, requestStart)
 			}
-			wg.Wait()
-		}(&wg)
+		}(&wgMain)
+		wgMain.Wait()
 	}
 	printResult(requests)
 }
