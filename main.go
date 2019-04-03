@@ -11,26 +11,29 @@ import (
 )
 
 func main() {
+	start := time.Now()
 	requests := newRequests()
-	var wgMain sync.WaitGroup
+	var wg sync.WaitGroup
 	for i := 0; i < requestsNumber; i++ {
-		wgMain.Add(1)
-		go func(wgFunc *sync.WaitGroup) {
-			defer wgFunc.Done()
-			requestStart := time.Now()
-			client := http.Client{Timeout: time.Duration(timeoutMilliseconds)}
-			_, err := client.Get(address)
-			if err, ok := err.(net.Error); ok && err.Timeout() {
-				incRejectedNumber(requests)
-			} else if err != nil {
-				panic(err)
-			} else {
-				addRequestTime(requests, requestStart)
-			}
-		}(&wgMain)
-		wgMain.Wait()
+		wg.Add(1)
+		sendRequest(requests, &wg)
+		wg.Wait()
 	}
-	printResult(requests)
+	elapsedTime := time.Since(start)
+	printResult(requests, elapsedTime)
+}
+func sendRequest(requests *request, wgFunc *sync.WaitGroup) {
+	defer wgFunc.Done()
+	requestStart := time.Now()
+	client := http.Client{Timeout: time.Duration(timeoutMilliseconds)}
+	_, err := client.Get(address)
+	if err, ok := err.(net.Error); ok && err.Timeout() {
+		incRejectedNumber(requests)
+	} else if err != nil {
+		panic(err)
+	} else {
+		addRequestTime(requests, requestStart)
+	}
 }
 
 var (
@@ -129,8 +132,8 @@ func addRequestTime(requests *request, requestStart time.Time) {
 	requests.mux.Unlock()
 }
 
-func printResult(requests *request) {
-	fmt.Println("End time of requests:", sum(requests.requestTimes))
+func printResult(requests *request, elapsedTime time.Duration) {
+	fmt.Println("End time of requests:", elapsedTime)
 	fmt.Println("Average request time:", requestsAverageTime(requests.requestTimes))
 	fmt.Println("Longest request time:", maxTime(requests.requestTimes))
 	fmt.Println("Faster request time:", minTime(requests.requestTimes))
